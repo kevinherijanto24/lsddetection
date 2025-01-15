@@ -6,6 +6,7 @@ from ultralytics import YOLO
 import base64
 import io
 from PIL import Image
+from waitress import serve
 import numpy as np
 
 app = Flask(__name__)
@@ -75,3 +76,5 @@ def handle_stream(data):
 
     # Send the processed image back to the client
     emit('image', {'image': img_base64})
+if __name__ == '__main__':
+    serve(app, host='0.0.0.0', port=5000)
