@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time YOLO Object Detection</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Real-Time YOLO Object Detection</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <br>
+    <img id="output" width="640" height="480">
+    
+    <script>
+        // Set up the socket connection
+        const socket = io.connect('http://127.0.0.1:5000/');
+    
+        // Access webcam stream
+        const videoElement = document.getElementById('video');
+        const outputImage = document.getElementById('output');
+        const constraints = { video: { width: 640, height: 480 } };
+    
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(stream) {
+                videoElement.srcObject = stream;
+            })
+            .catch(function(err) {
+                console.error('Error accessing webcam:', err);
+            });
+    
+        // Capture frames and send to the server
+        videoElement.addEventListener('play', function() {
+            setInterval(function() {
+                if (videoElement.paused || videoElement.ended) return;
+    
+                // Capture the current frame from the video element
+                const canvas = document.createElement('canvas');
+                canvas.width = videoElement.videoWidth;
+                canvas.height = videoElement.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+    
+                // Convert the frame to base64 and send it to the server
+                const base64Image = canvas.toDataURL('image/png');
+                socket.emit('stream', { image: base64Image.split(',')[1] });
+            }, 1000); // Send every 1000ms (4 FPS)
+        });
+    
+        // Receive processed image from the server and display it
+        socket.on('image', function(data) {
+            outputImage.src = 'data:image/png;base64,' + data.image;
+        });
+    </script>
+    
+</body>
+</html>
