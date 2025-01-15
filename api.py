@@ -75,6 +75,3 @@ def handle_stream(data):
 
     # Send the processed image back to the client
     emit('image', {'image': img_base64})
-
-if __name__ == '__main__':
-    socketio.run(app)
