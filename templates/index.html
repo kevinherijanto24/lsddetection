@@ -60,13 +60,13 @@
         socket.on('image', function(data) {
             const img = new Image();
             img.onload = function() {
-                // Clear the canvas
+                // Clear the canvas before drawing the new image
                 context.clearRect(0, 0, canvasElement.width, canvasElement.height);
                 
                 // Draw the received image onto the canvas
                 context.drawImage(img, 0, 0);
 
-                // Draw bounding boxes
+                // Draw bounding boxes after the image is loaded and drawn
                 if (data.boxes && data.boxes.length > 0) {
                     data.boxes.forEach(function(box) {
                         context.beginPath();
@@ -82,6 +82,5 @@
             img.src = 'data:image/png;base64,' + data.image;
         });
     </script>
-    
 </body>
 </html>
