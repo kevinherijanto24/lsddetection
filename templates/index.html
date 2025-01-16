@@ -26,49 +26,68 @@
         <div class="row justify-content-center mt-4">
             <div class="col-md-8">
                 <div class="ratio ratio-4x3">
-                    <img id="output" class="border rounded" alt="Processed Output">
+                    <canvas id="canvas" class="border rounded"></canvas>
                 </div>
             </div>
         </div>
+        <div class="text-center mt-3">
+            <button id="cameraSwitch" class="btn btn-primary">Switch Camera</button>
+        </div>
     </div>
+
     <script>
-        // Set up the socket connection
         const socket = io.connect('https://lsddetection-production.up.railway.app/');
 
         // Access webcam stream
         const videoElement = document.getElementById('video');
-        const outputImage = document.getElementById('output');
         const canvasElement = document.getElementById('canvas');
         const context = canvasElement.getContext('2d');
-        const constraints = { video: { width: 640, height: 480 } };
+        let currentStream = null;
+        let facingMode = 'user'; // Default to front camera
+        let constraints = { video: { width: 640, height: 480, facingMode: facingMode } };
 
-        // Set the canvas size dynamically based on the video element
-        videoElement.addEventListener('loadedmetadata', function() {
-            canvasElement.width = videoElement.videoWidth;
-            canvasElement.height = videoElement.videoHeight;
+        // Access webcam stream function
+        function startVideoStream(constraints) {
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(function(stream) {
+                    if (currentStream) {
+                        currentStream.getTracks().forEach(track => track.stop());
+                    }
+                    videoElement.srcObject = stream;
+                    currentStream = stream;
+
+                    // Adjust canvas size after video stream starts
+                    videoElement.onloadedmetadata = function() {
+                        canvasElement.width = videoElement.videoWidth;
+                        canvasElement.height = videoElement.videoHeight;
+                    };
+                })
+                .catch(function(err) {
+                    console.error('Error accessing webcam:', err);
+                });
+        }
+
+        // Initialize with the front camera
+        startVideoStream(constraints);
+
+        // Toggle between front and back camera
+        document.getElementById('cameraSwitch').addEventListener('click', function() {
+            facingMode = facingMode === 'user' ? 'environment' : 'user'; // Switch between 'user' and 'environment'
+            constraints = { video: { width: 640, height: 480, facingMode: facingMode } };
+            startVideoStream(constraints);
         });
-
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then(function(stream) {
-                videoElement.srcObject = stream;
-            })
-            .catch(function(err) {
-                console.error('Error accessing webcam:', err);
-            });
 
         // Capture frames and send to the server
         videoElement.addEventListener('play', function() {
             setInterval(function() {
                 if (videoElement.paused || videoElement.ended) return;
 
-                // Capture the current frame from the video element
                 const canvas = document.createElement('canvas');
                 canvas.width = videoElement.videoWidth;
                 canvas.height = videoElement.videoHeight;
                 const context = canvas.getContext('2d');
                 context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-                // Convert the frame to base64 and send it to the server
                 const base64Image = canvas.toDataURL('image/png');
                 socket.emit('stream', { image: base64Image.split(',')[1] });
             }, 1000); // Send every 1000ms (1 FPS)
