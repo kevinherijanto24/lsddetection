@@ -8,3 +8,4 @@ numpy
 waitress
 gunicorn
 gevent>=1.4
+eventlet
