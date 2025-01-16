@@ -25,4 +25,5 @@ EXPOSE 5000
 ENV FLASK_ENV=production
 
 # Run the Flask app with optimized Gunicorn configuration
-CMD ["gunicorn", "-w", "1", "-k", "gevent", "-b", "0.0.0.0:5000", "api:app"]
+CMD ["gunicorn", "-w", "1", "-k", "eventlet", "-b", "0.0.0.0:5000", "api:app"]
+
