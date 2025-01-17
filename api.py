@@ -28,7 +28,7 @@ def image_to_base64(image):
     return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
 # Helper function to downscale image
-def resize_image(img, width=320):
+def resize_image(img, width=160):
     # Calculate the aspect ratio
     aspect_ratio = float(img.shape[1]) / float(img.shape[0])
     new_height = int(width / aspect_ratio)
@@ -62,7 +62,7 @@ def handle_stream(data):
     orig_height, orig_width = img.shape[:2]
 
     # Downscale the image for faster processing
-    img_resized = resize_image(img, width=320)  # Resize to 320px width
+    img_resized = resize_image(img, width=160)  # Resize to 160px width
 
     # Perform YOLO detection on the resized image
     results = model(img_resized)
@@ -124,7 +124,7 @@ def handle_stream(data):
     orig_height, orig_width = img.shape[:2]
 
     # Downscale the image before passing it to the model
-    img_resized = resize_image(img, width=320)  # Resize to 320px width for processing
+    img_resized = resize_image(img, width=160)  # Resize to 160px width for processing
 
     # Perform the inference using YOLO
     results = model(img_resized)
