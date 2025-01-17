@@ -8,6 +8,7 @@ import io
 from PIL import Image
 from waitress import serve
 import numpy as np
+from collections import Counter  # To handle duplicate boxes
 
 app = Flask(__name__)
 
@@ -71,9 +72,19 @@ def handle_stream(data):
     # Prepare bounding box data
     bounding_boxes = []
 
+    # Track seen bounding boxes to avoid duplicates
+    seen_boxes = Counter()
+
     # Rescale the bounding boxes back to the original image dimensions
     for box in boxes:
         x1, y1, x2, y2 = box.xyxy[0].tolist()
+        label = classes[int(box.cls)]
+
+        # Check for duplicates using rounded coordinates
+        box_key = (round(x1), round(y1), round(x2), round(y2), label)
+        if seen_boxes[box_key] > 0:
+            continue
+        seen_boxes[box_key] += 1
 
         # Rescale the bounding box coordinates
         x1 = int(x1 * orig_width / img_resized.shape[1])
@@ -83,7 +94,6 @@ def handle_stream(data):
 
         # Draw the bounding box and label on the image
         cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2)
-        label = classes[int(box.cls)]
         cv2.putText(img, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
         # Add bounding box info to be sent back
