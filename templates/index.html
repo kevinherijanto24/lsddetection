@@ -15,7 +15,7 @@
 <body>
     <div class="container my-5">
         <h1 class="text-center mb-4">Real-Time YOLO Object Detection</h1>
-        <div id="alert">Wait for Model Initialization...</div>
+        <div id="alert" class="text-center mb-4" >Wait for Model Initialization...</div>
         <h2 class="text-center mb-4"></h2>
         <div class="row justify-content-center">
             <div class="col-md-8">
@@ -72,11 +72,21 @@
 
         // Initialize with the front camera
         startVideoStream(constraints);
-
         // Toggle between front and back camera
         document.getElementById('cameraSwitch').addEventListener('click', function() {
-            facingMode = facingMode === 'user' ? 'environment' : 'user'; // Switch between 'user' and 'environment'
-            constraints = { video: { width: 640, height: 480, facingMode: facingMode } };
+            // Toggle the facingMode
+            facingMode = facingMode === 'user' ? 'environment' : 'user';
+
+            // Update constraints with the new facingMode
+            constraints = {
+                video: {
+                    width: 640,
+                    height: 480,
+                    facingMode: { exact: facingMode }
+                }
+            };
+
+            // Restart the video stream with updated constraints
             startVideoStream(constraints);
         });
 
@@ -93,7 +103,7 @@
 
                 const base64Image = canvas.toDataURL('image/png');
                 socket.emit('stream', { image: base64Image.split(',')[1] });
-            }, 1000); // Send every 1000ms (1 FPS)
+            }, 2000); // Send every 1000ms (1 FPS)
         });
 
         // Receive processed image from the server and display it
