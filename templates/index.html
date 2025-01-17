@@ -74,21 +74,19 @@
         startVideoStream(constraints);
         // Toggle between front and back camera
         document.getElementById('cameraSwitch').addEventListener('click', function() {
-            // Toggle the facingMode
-            facingMode = facingMode === 'user' ? 'environment' : 'user';
+        facingMode = facingMode === 'user' ? 'environment' : 'user';
 
-            // Update constraints with the new facingMode
-            constraints = {
-                video: {
-                    width: 640,
-                    height: 480,
-                    facingMode: { exact: facingMode }
-                }
-            };
+    constraints = {
+        video: {
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            facingMode: { ideal: facingMode } // Use `ideal` for better compatibility
+        }
+    };
 
-            // Restart the video stream with updated constraints
-            startVideoStream(constraints);
-        });
+    // Restart the video stream with updated constraints
+    startVideoStream(constraints);
+});
 
         // Capture frames and send to the server
         videoElement.addEventListener('play', function() {
