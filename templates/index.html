@@ -131,18 +131,6 @@
                 // Draw the received image onto the canvas
                 context.drawImage(img, 0, 0);
 
-                // Draw bounding boxes after the image is loaded and drawn
-                if (data.boxes && data.boxes.length > 0) {
-                    data.boxes.forEach(function (box) {
-                        context.beginPath();
-                        context.rect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1);
-                        context.lineWidth = 2;
-                        context.strokeStyle = 'red';
-                        context.fillStyle = 'red';
-                        context.stroke();
-                        context.fillText(box.label, box.x1, box.y1 - 10);
-                    });
-                }
             };
             img.src = 'data:image/png;base64,' + data.image;
         });
