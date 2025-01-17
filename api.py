@@ -86,7 +86,7 @@ def handle_stream(data):
         # Prevent duplicate bounding boxes using a unique identifier
         box_id = (x1, y1, x2, y2, label)
         if box_id in unique_boxes:
-            continue  # Skip duplicate box
+            continue 
         unique_boxes.add(box_id)
 
         # Calculate rescaled bounding box coordinates

@@ -118,7 +118,7 @@
 
                 const base64Image = canvas.toDataURL('image/png');
                 socket.emit('stream', { image: base64Image.split(',')[1] });
-            }, 2000); // Send every 1000ms (1 FPS)
+            }, 1000); // Send every 1000ms (1 FPS)
         });
 
         // Receive processed image from the server and display it
