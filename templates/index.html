@@ -5,38 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-Time YOLO Object Detection</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- <style>
-        #video {
-            display: none;
-        }
-    </style> -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container my-5">
-        <h1 class="text-center mb-4">Real-Time YOLO Object Detection</h1>
-        <div id="alert" class="text-center mb-4" >Wait for Model Initialization...</div>
-        <h2 class="text-center mb-4"></h2>
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="ratio ratio-4x3">
-                    <video id="video" class="border rounded" autoplay></video>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-semibold text-center text-gray-800 mb-6">Real-Time YOLO Object Detection</h1>
+        <div id="alert" class="text-center text-sm bg-gray-200 text-gray-700 px-4 py-2 rounded-lg shadow mb-6">
+            Wait for Model Initialization...
+            
+        </div>
+        <div class="flex flex-col items-center">
+            <!-- Video Section -->
+            <div class="w-full max-w-md mb-6">
+                <div class="aspect-w-4 aspect-h-3 bg-gray-300 rounded-lg overflow-hidden shadow-lg">
+                    <video id="video" class="w-full h-full object-cover" autoplay></video>
                 </div>
             </div>
-        </div>
-        <div class="row justify-content-center mt-4">
-            <div class="col-md-8">
-                <div class="ratio ratio-4x3">
-                    <canvas id="canvas" class="border rounded"></canvas>
+
+            <!-- Canvas Section -->
+            <div class="w-full max-w-md mb-6">
+                <div class="aspect-w-4 aspect-h-3 bg-gray-300 rounded-lg overflow-hidden shadow-lg">
+                    <canvas id="canvas" class="w-full h-full object-cover"></canvas>
                 </div>
             </div>
-        </div>
-        <div class="text-center mt-3">
-            <button id="cameraSwitch" class="btn btn-primary">Switch Camera</button>
-            <button id="model1" class="btn btn-secondary">Fitur Far Away Check</button>
-            <button id="model2" class="btn btn-secondary">Fitur Close Up Check</button>
+
+            <!-- Buttons -->
+            <div class="space-x-3">
+                <button id="cameraSwitch" class="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    Switch Camera
+                </button>
+                <button id="model1" class="px-6 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    Far Away Check
+                </button>
+                <button id="model2" class="px-6 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    Close Up Check
+                </button>
+            </div>
         </div>
     </div>
+
+    <footer class="text-center text-sm text-gray-500 mt-8">
+        Real-Time YOLO Detection &copy; 2025
+    </footer>
 
     <script>
         const socket = io.connect('https://lsddetection-production.up.railway.app/');
@@ -46,7 +56,7 @@
         const canvasElement = document.getElementById('canvas');
         const context = canvasElement.getContext('2d');
         let currentStream = null;
-        let facingMode = 'environment'; // Default to front camera
+        let facingMode = 'environment';
         let constraints = { video: { width: 640, height: 480, facingMode: facingMode } };
 
         // Access webcam stream function
@@ -76,17 +86,17 @@
         document.getElementById('cameraSwitch').addEventListener('click', function() {
         facingMode = facingMode === 'user' ? 'environment' : 'user';
 
-    constraints = {
-        video: {
-            width: { ideal: 640 },
-            height: { ideal: 480 },
-            facingMode: { ideal: facingMode } // Use `ideal` for better compatibility
-        }
-    };
+                constraints = {
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: { ideal: facingMode } // Use `ideal` for better compatibility
+                    }
+                };
 
-    // Restart the video stream with updated constraints
-    startVideoStream(constraints);
-});
+                // Restart the video stream with updated constraints
+                startVideoStream(constraints);
+            });
 
         // Capture frames and send to the server
         videoElement.addEventListener('play', function() {
@@ -133,10 +143,12 @@
         // Handle model switching
         document.getElementById('model1').addEventListener('click', function() {
             socket.emit('change_model', { model_path: 'yolov11n_modelLumpySkinwith2class_old.pt' });
+            showAlert('Switched to Model 1: Far Away Check', 1000000);
         });
 
         document.getElementById('model2').addEventListener('click', function() {
             socket.emit('change_model', { model_path: 'yolov11n_modelLumpySkinwith2classdeeper.pt' });
+            showAlert('Switched to Model 2: Close Up Check', 1000000);
         });
 
         socket.on('model_changed', function(data) {
@@ -150,6 +162,7 @@
 
         function showAlert() {
             const alertBox = document.getElementById('alert');
+            
             // Show alert
             alertBox.style.display = 'block';
 
