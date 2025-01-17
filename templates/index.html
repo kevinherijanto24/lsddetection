@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,12 +8,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100 font-sans">
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl font-semibold text-center text-gray-800 mb-6">Real-Time YOLO Object Detection</h1>
         <div id="alert" class="text-center text-sm bg-gray-200 text-gray-700 px-4 py-2 rounded-lg shadow mb-6">
             Wait for Model Initialization...
-            
+
         </div>
         <div class="flex flex-col items-center">
             <!-- Video Section -->
@@ -31,13 +33,16 @@
 
             <!-- Buttons -->
             <div class="space-x-3">
-                <button id="cameraSwitch" class="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                <button id="cameraSwitch"
+                    class="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300">
                     Switch Camera
                 </button>
-                <button id="model1" class="px-6 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                <button id="model1"
+                    class="px-6 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
                     Far Away Check
                 </button>
-                <button id="model2" class="px-6 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                <button id="model2"
+                    class="px-6 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
                     Close Up Check
                 </button>
             </div>
@@ -62,7 +67,7 @@
         // Access webcam stream function
         function startVideoStream(constraints) {
             navigator.mediaDevices.getUserMedia(constraints)
-                .then(function(stream) {
+                .then(function (stream) {
                     if (currentStream) {
                         currentStream.getTracks().forEach(track => track.stop());
                     }
@@ -70,12 +75,12 @@
                     currentStream = stream;
 
                     // Adjust canvas size after video stream starts
-                    videoElement.onloadedmetadata = function() {
+                    videoElement.onloadedmetadata = function () {
                         canvasElement.width = videoElement.videoWidth;
                         canvasElement.height = videoElement.videoHeight;
                     };
                 })
-                .catch(function(err) {
+                .catch(function (err) {
                     console.error('Error accessing webcam:', err);
                 });
         }
@@ -83,24 +88,26 @@
         // Initialize with the front camera
         startVideoStream(constraints);
         // Toggle between front and back camera
-        document.getElementById('cameraSwitch').addEventListener('click', function() {
-            facingMode = facingMode === 'user' ? 'environment' : 'user';
+        document.getElementById('cameraSwitch').addEventListener('click', function () {
+            // Ubah facingMode antara kamera depan dan belakang
+            facingMode = facingMode === 'user' ? 'environment' : 'user'; // Switch between 'user' and 'environment'
 
-                constraints = {
-                    video: {
-                        width: { ideal: 640 },
-                        height: { ideal: 480 },
-                        facingMode: facingMode  
-                    }
-                };
+            // Update constraints dengan facingMode baru
+            constraints = { video: { width: 640, height: 480, facingMode: facingMode } };
 
-                // Restart the video stream with updated constraints
-                startVideoStream(constraints);
-            });
+            // Hentikan stream lama sebelum memulai yang baru
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+
+            // Mulai video stream dengan constraints yang baru
+            startVideoStream(constraints);
+        });
+
 
         // Capture frames and send to the server
-        videoElement.addEventListener('play', function() {
-            setInterval(function() {
+        videoElement.addEventListener('play', function () {
+            setInterval(function () {
                 if (videoElement.paused || videoElement.ended) return;
 
                 const canvas = document.createElement('canvas');
@@ -115,18 +122,18 @@
         });
 
         // Receive processed image from the server and display it
-        socket.on('image', function(data) {
+        socket.on('image', function (data) {
             const img = new Image();
-            img.onload = function() {
+            img.onload = function () {
                 // Clear the canvas before drawing the new image
                 context.clearRect(0, 0, canvasElement.width, canvasElement.height);
-                
+
                 // Draw the received image onto the canvas
                 context.drawImage(img, 0, 0);
 
                 // Draw bounding boxes after the image is loaded and drawn
                 if (data.boxes && data.boxes.length > 0) {
-                    data.boxes.forEach(function(box) {
+                    data.boxes.forEach(function (box) {
                         context.beginPath();
                         context.rect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1);
                         context.lineWidth = 2;
@@ -141,17 +148,17 @@
         });
 
         // Handle model switching
-        document.getElementById('model1').addEventListener('click', function() {
+        document.getElementById('model1').addEventListener('click', function () {
             socket.emit('change_model', { model_path: 'yolov11n_modelLumpySkinwith2class_old.pt' });
             showAlert('Switched to Model 1: Far Away Check', 1000000);
         });
 
-        document.getElementById('model2').addEventListener('click', function() {
+        document.getElementById('model2').addEventListener('click', function () {
             socket.emit('change_model', { model_path: 'yolov11n_modelLumpySkinwith2classdeeper.pt' });
             showAlert('Switched to Model 2: Close Up Check', 1000000);
         });
 
-        socket.on('model_changed', function(data) {
+        socket.on('model_changed', function (data) {
             if (data.success) {
                 alert(`Model successfully switched to: ${data.model}`);
             } else {
@@ -162,7 +169,7 @@
 
         function showAlert() {
             const alertBox = document.getElementById('alert');
-            
+
             // Show alert
             alertBox.style.display = 'block';
 
@@ -180,4 +187,5 @@
         showAlert();
     </script>
 </body>
+
 </html>
