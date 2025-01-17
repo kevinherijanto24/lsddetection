@@ -61,7 +61,7 @@ def handle_stream(data):
     orig_height, orig_width = img.shape[:2]
 
     # Downscale the image before passing it to the model
-    img_resized = resize_image(img, width=160)  # Resize to 320px width
+    img_resized = resize_image(img, width=320)  # Resize to 320px width for processing
 
     # Perform the inference using YOLO
     results = model(img_resized)

@@ -84,7 +84,7 @@
         startVideoStream(constraints);
         // Toggle between front and back camera
         document.getElementById('cameraSwitch').addEventListener('click', function() {
-        facingMode = facingMode === 'user' ? 'environment' : 'user';
+            facingMode = facingMode === 'user' ? 'environment' : 'user';
 
                 constraints = {
                     video: {
