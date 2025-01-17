@@ -15,6 +15,8 @@
 <body>
     <div class="container my-5">
         <h1 class="text-center mb-4">Real-Time YOLO Object Detection</h1>
+        <div id="alert">Wait for Model Initialization...</div>
+        <h2 class="text-center mb-4"></h2>
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="ratio ratio-4x3">
@@ -122,7 +124,7 @@
 
         // Handle model switching
         document.getElementById('model1').addEventListener('click', function() {
-            socket.emit('change_model', { model_path: 'yolov11n_modelLumpySkinwith2class.pt' });
+            socket.emit('change_model', { model_path: 'yolov11n_modelLumpySkinwith2class_old.pt' });
         });
 
         document.getElementById('model2').addEventListener('click', function() {
@@ -136,6 +138,25 @@
                 alert(`Error switching model: ${data.error}`);
             }
         });
+
+
+        function showAlert() {
+            const alertBox = document.getElementById('alert');
+            // Show alert
+            alertBox.style.display = 'block';
+
+            // Hide alert after 15 seconds
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+
+                // Wait for 1 minute before re-initializing
+                console.log("Waiting for 1 minute...");
+                setTimeout(() => {
+                    console.log("Initialization complete.");
+                }, 60000); // 1 minute = 60000ms
+            }, 30000); // 15 seconds = 15000ms
+        }
+        showAlert();
     </script>
 </body>
 </html>

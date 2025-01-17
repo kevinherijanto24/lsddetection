@@ -17,7 +17,7 @@ CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")  # Allow all origins
 
 # Global variable to store the current model
-current_model_path = 'yolov11n_modelLumpySkinwith2class.pt'
+current_model_path = 'yolov11n_modelLumpySkinwith2class_old.pt'
 model = YOLO(current_model_path)
 
 # Helper function to convert image to base64 for web display
