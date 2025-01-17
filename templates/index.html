@@ -46,7 +46,7 @@
         const canvasElement = document.getElementById('canvas');
         const context = canvasElement.getContext('2d');
         let currentStream = null;
-        let facingMode = 'user'; // Default to front camera
+        let facingMode = 'environment'; // Default to front camera
         let constraints = { video: { width: 640, height: 480, facingMode: facingMode } };
 
         // Access webcam stream function
