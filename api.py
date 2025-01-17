@@ -94,11 +94,7 @@ def handle_stream(data):
         y1 = int(y1 * orig_height / img_resized.shape[0])
         x2 = int(x2 * orig_width / img_resized.shape[1])
         y2 = int(y2 * orig_height / img_resized.shape[0])
-
-        # Draw the bounding box on the original image
-        cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2)
-        cv2.putText(img, label, (x1, max(0, y1 - 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1)
-
+        
         # Append the bounding box data for client
         bounding_boxes.append({
             'x1': x1,

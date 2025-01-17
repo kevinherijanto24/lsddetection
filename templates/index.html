@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
 
 <head>
     <meta charset="UTF-8">
@@ -131,6 +131,18 @@
                 // Draw the received image onto the canvas
                 context.drawImage(img, 0, 0);
 
+                // Draw bounding boxes after the image is loaded and drawn
+                 if (data.boxes && data.boxes.length > 0) {
+                    databoxes.forEach(function (box) {
+                        context.beginPath();
+                        context.rect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1);
+                        context.lineWidth = 2;
+                        context.strokeStyle = 'red';
+                        context.fillStyle = 'red';
+                        context.stroke();
+                        context.fillText(box.label, box.x1, box.y1 - 10);
+                    });
+                }
             };
             img.src = 'data:image/png;base64,' + data.image;
         });
@@ -176,4 +188,35 @@
     </script>
 </body>
 
+</html>ation complete.");
+                }, 60000); // 1 minute = 60000ms
+            }, 30000); // 15 seconds = 15000ms
+        }
+        showAlert();
+    </script>
+</body>
+</html>
+tion complete.");
+                }, 60000); // 1 minute = 60000ms
+            }, 30000); // 15 seconds = 15000ms
+        }
+        showAlert();
+    </script>
+</body>
+</html>
+tion complete.");
+                }, 60000); // 1 minute = 60000ms
+            }, 30000); // 15 seconds = 15000ms
+        }
+        showAlert();
+    </script>
+</body>
+</html>
+ion complete.");
+                }, 60000); // 1 minute = 60000ms
+            }, 30000); // 15 seconds = 15000ms
+        }
+        showAlert();
+    </script>
+</body>
 </html>
