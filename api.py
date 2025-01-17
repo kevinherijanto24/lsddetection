@@ -16,8 +16,9 @@ CORS(app)
 
 socketio = SocketIO(app, cors_allowed_origins="*")  # Allow all origins
 
-# Load the YOLO model
-model = YOLO('yolov11n_modelLumpySkinwith2class.pt')
+# Global variable to store the current model
+current_model_path = 'yolov11n_modelLumpySkinwith2class.pt'
+model = YOLO(current_model_path)
 
 # Helper function to convert image to base64 for web display
 def image_to_base64(image):
@@ -36,6 +37,18 @@ def resize_image(img, width=320):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@socketio.on('change_model')
+def handle_change_model(data):
+    global model, current_model_path
+    new_model_path = data.get('model_path')
+    try:
+        # Load the new model
+        model = YOLO(new_model_path)
+        current_model_path = new_model_path
+        emit('model_changed', {'success': True, 'model': new_model_path})
+    except Exception as e:
+        emit('model_changed', {'success': False, 'error': str(e)})
 
 @socketio.on('stream')
 def handle_stream(data):

@@ -6,7 +6,6 @@
     <title>Real-Time YOLO Object Detection</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <style>
         #video {
             display: none;
@@ -32,6 +31,8 @@
         </div>
         <div class="text-center mt-3">
             <button id="cameraSwitch" class="btn btn-primary">Switch Camera</button>
+            <button id="model1" class="btn btn-secondary">Load Model 1</button>
+            <button id="model2" class="btn btn-secondary">Load Model 2</button>
         </div>
     </div>
 
@@ -117,6 +118,23 @@
                 }
             };
             img.src = 'data:image/png;base64,' + data.image;
+        });
+
+        // Handle model switching
+        document.getElementById('model1').addEventListener('click', function() {
+            socket.emit('change_model', { model_path: 'yolov11n_modelLumpySkinwith2class.pt' });
+        });
+
+        document.getElementById('model2').addEventListener('click', function() {
+            socket.emit('change_model', { model_path: 'yolov11n_modelLumpySkinwith2classdeeper.pt' });
+        });
+
+        socket.on('model_changed', function(data) {
+            if (data.success) {
+                alert(`Model successfully switched to: ${data.model}`);
+            } else {
+                alert(`Error switching model: ${data.error}`);
+            }
         });
     </script>
 </body>
