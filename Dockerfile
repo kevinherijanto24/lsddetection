@@ -18,10 +18,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application files into the container
 COPY . .
 
-# Copy the SSL certificates into the container
-COPY /path/to/selfsigned.crt /etc/ssl/certs/selfsigned.crt
-COPY /path/to/selfsigned.key /etc/ssl/private/selfsigned.key
-
 # Expose the port for HTTPS
 EXPOSE 443
 
