@@ -7,6 +7,7 @@ import base64
 import io
 from PIL import Image
 from waitress import serve
+from api import app  
 import numpy as np
 from collections import Counter  # To handle duplicate boxes
 
@@ -94,7 +95,7 @@ def handle_stream(data):
         y1 = int(y1 * orig_height / img_resized.shape[0])
         x2 = int(x2 * orig_width / img_resized.shape[1])
         y2 = int(y2 * orig_height / img_resized.shape[0])
-        
+
         # Append the bounding box data for client
         bounding_boxes.append({
             'x1': x1,
