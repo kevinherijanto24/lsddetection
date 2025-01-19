@@ -106,19 +106,30 @@
 
 
         // Capture frames and send to the server
+        // Capture frames and send to the server
         videoElement.addEventListener('play', function () {
-            setInterval(function () {
+            function draw() {
                 if (videoElement.paused || videoElement.ended) return;
 
+                // Create a temporary canvas to capture the current video frame
                 const canvas = document.createElement('canvas');
                 canvas.width = videoElement.videoWidth;
                 canvas.height = videoElement.videoHeight;
                 const context = canvas.getContext('2d');
+                
+                // Draw the video frame onto the temporary canvas
                 context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
+                // Convert the frame to a base64 image and emit it through the socket
                 const base64Image = canvas.toDataURL('image/png');
                 socket.emit('stream', { image: base64Image.split(',')[1] });
-            }, 10); // Send every 1000ms (1 FPS)
+
+                // Continue drawing next frame
+                requestAnimationFrame(draw);
+            }
+
+            // Start the drawing loop
+            draw();
         });
 
         // Receive processed image from the server and display it
