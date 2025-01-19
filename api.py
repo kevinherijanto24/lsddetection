@@ -71,68 +71,9 @@ def handle_stream(data):
 
     # Prepare bounding box data
     bounding_boxes = []
-
-    # Track unique bounding boxes (prevent duplicates)
-    unique_boxes = set()
+    seen_boxes = Counter()  # Track unique bounding boxes (prevent duplicates)
 
     # Rescale bounding boxes back to the original image dimensions
-    for box in boxes:
-        x1, y1, x2, y2 = box.xyxy[0].tolist()
-        label = classes[int(box.cls)]
-
-        # Round coordinates to integers
-        x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
-
-        # Prevent duplicate bounding boxes using a unique identifier
-        box_id = (x1, y1, x2, y2, label)
-        if box_id in unique_boxes:
-            continue 
-        unique_boxes.add(box_id)
-
-        # Calculate rescaled bounding box coordinates
-        x1 = int(x1 * orig_width / img_resized.shape[1])
-        y1 = int(y1 * orig_height / img_resized.shape[0])
-        x2 = int(x2 * orig_width / img_resized.shape[1])
-        y2 = int(y2 * orig_height / img_resized.shape[0])
-        # Append the bounding box data for client
-        bounding_boxes.append({
-            'x1': x1,
-            'y1': y1,
-            'x2': x2,
-            'y2': y2,
-            'label': label
-        })
-
-    # Convert the processed image back to base64
-    pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-    img_base64 = image_to_base64(pil_img)
-
-    # Send the processed image and bounding box data back to the client
-    emit('image', {'image': img_base64, 'boxes': bounding_boxes})
-
-    # Decode the received image data
-    img_data = base64.b64decode(data['image'])
-    np_arr = np.frombuffer(img_data, np.uint8)
-    img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-
-    # Store the original dimensions for later rescaling of the bounding boxes
-    orig_height, orig_width = img.shape[:2]
-
-    # Downscale the image before passing it to the model
-    img_resized = resize_image(img, width=160)  # Resize to 160px width for processing
-
-    # Perform the inference using YOLO
-    results = model(img_resized)
-    boxes = results[0].boxes
-    classes = results[0].names
-
-    # Prepare bounding box data
-    bounding_boxes = []
-
-    # Track seen bounding boxes to avoid duplicates
-    seen_boxes = Counter()
-
-    # Rescale the bounding boxes back to the original image dimensions
     for box in boxes:
         x1, y1, x2, y2 = box.xyxy[0].tolist()
         label = classes[int(box.cls)]
@@ -148,10 +89,6 @@ def handle_stream(data):
         y1 = int(y1 * orig_height / img_resized.shape[0])
         x2 = int(x2 * orig_width / img_resized.shape[1])
         y2 = int(y2 * orig_height / img_resized.shape[0])
-
-        # Draw the bounding box and label on the image
-        cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2)
-        cv2.putText(img, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
         # Add bounding box info to be sent back
         bounding_boxes.append({
