@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -14,7 +14,6 @@
         <h1 class="text-3xl font-semibold text-center text-gray-800 mb-6">Real-Time YOLO Object Detection</h1>
         <div id="alert" class="text-center text-sm bg-gray-200 text-gray-700 px-4 py-2 rounded-lg shadow mb-6">
             Wait for Model Initialization...
-
         </div>
         <div class="flex flex-col items-center">
             <!-- Video Section -->
@@ -104,34 +103,33 @@
             startVideoStream(constraints);
         });
 
-
         // Capture frames and send to the server
         videoElement.addEventListener('play', function () {
-        let frameCount = 0;
-        const framesToSkip = 10; // Send one frame every 5 frames
+            let frameCount = 0;
+            const framesToSkip = 20; // Send one frame every 20 frames (reduce this number further if needed)
 
-        function draw() {
-            if (videoElement.paused || videoElement.ended) return;
+            function draw() {
+                if (videoElement.paused || videoElement.ended) return;
 
-            // Skip frames by checking frame count
-            if (frameCount % framesToSkip === 0) {
-                const canvas = document.createElement('canvas');
-                canvas.width = videoElement.videoWidth;
-                canvas.height = videoElement.videoHeight;
-                const context = canvas.getContext('2d');
-                
-                // Draw the video frame onto the temporary canvas
-                context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                // Skip frames by checking frame count
+                if (frameCount % framesToSkip === 0) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = videoElement.videoWidth;
+                    canvas.height = videoElement.videoHeight;
+                    const context = canvas.getContext('2d');
 
-                // Convert the frame to a base64 image and emit it through the socket
-                const base64Image = canvas.toDataURL('image/png');
-                socket.emit('stream', { image: base64Image.split(',')[1] });
+                    // Draw the video frame onto the temporary canvas
+                    context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+                    // Convert the frame to a base64 image and emit it through the socket
+                    const base64Image = canvas.toDataURL('image/png');
+                    socket.emit('stream', { image: base64Image.split(',')[1] });
+                }
+
+                frameCount++;
+                // Continue drawing next frame
+                requestAnimationFrame(draw);
             }
-
-            frameCount++;
-            // Continue drawing next frame
-            requestAnimationFrame(draw);
-        }
 
             // Start the drawing loop
             draw();
@@ -181,7 +179,6 @@
                 alert(`Error switching model: ${data.error}`);
             }
         });
-
 
         function showAlert() {
             const alertBox = document.getElementById('alert');
