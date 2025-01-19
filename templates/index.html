@@ -106,7 +106,7 @@
         // Capture frames and send to the server
         videoElement.addEventListener('play', function () {
             let frameCount = 0;
-            const framesToSkip = 20; // Send one frame every 20 frames (reduce this number further if needed)
+            const framesToSkip = 60; // Send one frame every 20 frames (reduce this number further if needed)
 
             function draw() {
                 if (videoElement.paused || videoElement.ended) return;
