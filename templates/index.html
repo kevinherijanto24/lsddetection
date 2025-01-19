@@ -107,35 +107,35 @@
 
         // Capture frames and send to the server
         videoElement.addEventListener('play', function () {
-    let frameCount = 0;
-    const framesToSkip = 5; // Send one frame every 5 frames
+        let frameCount = 0;
+        const framesToSkip = 10; // Send one frame every 5 frames
 
-    function draw() {
-        if (videoElement.paused || videoElement.ended) return;
+        function draw() {
+            if (videoElement.paused || videoElement.ended) return;
 
-        // Skip frames by checking frame count
-        if (frameCount % framesToSkip === 0) {
-            const canvas = document.createElement('canvas');
-            canvas.width = videoElement.videoWidth;
-            canvas.height = videoElement.videoHeight;
-            const context = canvas.getContext('2d');
-            
-            // Draw the video frame onto the temporary canvas
-            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            // Skip frames by checking frame count
+            if (frameCount % framesToSkip === 0) {
+                const canvas = document.createElement('canvas');
+                canvas.width = videoElement.videoWidth;
+                canvas.height = videoElement.videoHeight;
+                const context = canvas.getContext('2d');
+                
+                // Draw the video frame onto the temporary canvas
+                context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
-            // Convert the frame to a base64 image and emit it through the socket
-            const base64Image = canvas.toDataURL('image/png');
-            socket.emit('stream', { image: base64Image.split(',')[1] });
+                // Convert the frame to a base64 image and emit it through the socket
+                const base64Image = canvas.toDataURL('image/png');
+                socket.emit('stream', { image: base64Image.split(',')[1] });
+            }
+
+            frameCount++;
+            // Continue drawing next frame
+            requestAnimationFrame(draw);
         }
 
-        frameCount++;
-        // Continue drawing next frame
-        requestAnimationFrame(draw);
-    }
-
-    // Start the drawing loop
-    draw();
-});
+            // Start the drawing loop
+            draw();
+        });
 
         // Receive processed image from the server and display it
         socket.on('image', function (data) {
