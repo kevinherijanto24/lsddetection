@@ -170,4 +170,4 @@ def handle_stream(data):
     emit('image', {'image': img_base64, 'boxes': bounding_boxes})
 
 if __name__ == '__main__':
-    serve(app, host='0.0.0.0', port=5000)
+    app.run(ssl_context=('/etc/ssl/certs/selfsigned.crt', '/etc/ssl/private/selfsigned.key'), host='0.0.0.0', port=5000)
