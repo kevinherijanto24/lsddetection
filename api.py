@@ -94,7 +94,6 @@ def handle_stream(data):
         y1 = int(y1 * orig_height / img_resized.shape[0])
         x2 = int(x2 * orig_width / img_resized.shape[1])
         y2 = int(y2 * orig_height / img_resized.shape[0])
-        
         # Append the bounding box data for client
         bounding_boxes.append({
             'x1': x1,
