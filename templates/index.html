@@ -54,7 +54,7 @@
     </footer>
 
     <script>
-        const socket = io.connect('https://lsddetection-production.up.railway.app/');
+        const socket = io.connect('https://170.64.168.63:5000/');
 
         // Access webcam stream
         const videoElement = document.getElementById('video');
@@ -132,8 +132,8 @@
                 context.drawImage(img, 0, 0);
 
                 // Draw bounding boxes after the image is loaded and drawn
-                 if (data.boxes && data.boxes.length > 0) {
-                    databoxes.forEach(function (box) {
+                if (data.boxes && data.boxes.length > 0) {
+                    data.boxes.forEach(function (box) {
                         context.beginPath();
                         context.rect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1);
                         context.lineWidth = 2;
@@ -188,35 +188,4 @@
     </script>
 </body>
 
-</html>ation complete.");
-                }, 60000); // 1 minute = 60000ms
-            }, 30000); // 15 seconds = 15000ms
-        }
-        showAlert();
-    </script>
-</body>
-</html>
-tion complete.");
-                }, 60000); // 1 minute = 60000ms
-            }, 30000); // 15 seconds = 15000ms
-        }
-        showAlert();
-    </script>
-</body>
-</html>
-tion complete.");
-                }, 60000); // 1 minute = 60000ms
-            }, 30000); // 15 seconds = 15000ms
-        }
-        showAlert();
-    </script>
-</body>
-</html>
-ion complete.");
-                }, 60000); // 1 minute = 60000ms
-            }, 30000); // 15 seconds = 15000ms
-        }
-        showAlert();
-    </script>
-</body>
 </html>
