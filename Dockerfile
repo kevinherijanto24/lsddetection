@@ -23,10 +23,10 @@ COPY selfsigned.crt /etc/ssl/certs/selfsigned.crt
 COPY selfsigned.key /etc/ssl/private/selfsigned.key
 
 # Expose the port for HTTPS
-EXPOSE 5000
+EXPOSE 443
 
 # Set the environment variable for Flask to run in production
 ENV FLASK_ENV=production
 
 # Run the Flask app with optimized Gunicorn configuration and SSL support
-CMD ["gunicorn", "-w", "1", "-k", "eventlet", "--certfile=/etc/ssl/certs/selfsigned.crt", "--keyfile=/etc/ssl/private/selfsigned.key", "-b", "0.0.0.0:5000", "api:app"]
+CMD ["gunicorn", "-w", "1", "-k", "eventlet", "--certfile=/etc/ssl/certs/selfsigned.crt", "--keyfile=/etc/ssl/private/selfsigned.key", "-b", "0.0.0.0:443", "api:app"]
