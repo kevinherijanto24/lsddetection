@@ -22,9 +22,9 @@ current_model_path = 'yolov11n_modelLumpySkinwith2class_old.pt'
 model = YOLO(current_model_path)
 confidence_thresholds = {
     "Normal Skin Cows": 0,  
-    "LSD Cows": 0.9,   
+    "LSD Cows": 0.95,   
     "Cow": 0,  
-    "Lump": 0.9 
+    "Lump": 0.75 
 }
 
 # Helper function to convert image to base64 for web display
