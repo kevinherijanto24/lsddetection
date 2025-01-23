@@ -22,9 +22,9 @@ current_model_path = 'yolov11n_modelLumpySkinwith2class_old.pt'
 model = YOLO(current_model_path)
 confidence_thresholds = {
     "Normal Skin Cows": 0,  
-    "LSD Cows": 0.8,   
+    "LSD Cows": 0.9,   
     "Cow": 0,  
-    "Lump": 0.8 
+    "Lump": 0.9 
 }
 
 # Helper function to convert image to base64 for web display
@@ -57,12 +57,12 @@ def handle_change_model(data):
         if "yolov11n_modelLumpySkinwith2class_old.pt" in new_model_path.lower():
             confidence_thresholds = {
                 "Normal Skin Cows": 0,
-                "LSD Cows": 0.8
+                "LSD Cows": 0.9
             }
         elif "yolov11n_modelLumpySkinwith2classdeeper.pt" in new_model_path.lower():
             confidence_thresholds = {
                 "Cow": 0,
-                "Lump": 0.8
+                "Lump": 0.9
             }
         else:
             confidence_thresholds = {}  # Default empty if the model is unknown
