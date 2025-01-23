@@ -59,7 +59,7 @@ def handle_change_model(data):
                 "Normal Skin Cows": 0,
                 "LSD Cows": 0.5
             }
-        elif "yolov11n_modelLumpySkinwith2class_deeper.pt" in new_model_path.lower():
+        elif "yolov11n_modelLumpySkinwith2classdeeper.pt" in new_model_path.lower():
             confidence_thresholds = {
                 "Cow": 0,
                 "Lump": 0.5
