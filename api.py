@@ -20,6 +20,12 @@ socketio = SocketIO(app, cors_allowed_origins="*")  # Allow all origins
 # Global variable to store the current model
 current_model_path = 'yolov11n_modelLumpySkinwith2class_old.pt'
 model = YOLO(current_model_path)
+confidence_thresholds = {
+    "Normal Skin Cows": 0,  
+    "LSD Cows": 0.5,   
+    "Cow": 0,  
+    "Lump": 0.5   
+}
 
 # Helper function to convert image to base64 for web display
 def image_to_base64(image):
@@ -68,6 +74,7 @@ def handle_change_model(data):
 
 @socketio.on('stream')
 def handle_stream(data):
+    global confidence_thresholds
     # Decode the received image data
     img_data = base64.b64decode(data['image'])
     np_arr = np.frombuffer(img_data, np.uint8)
@@ -120,6 +127,7 @@ def handle_stream(data):
 
     # Send the processed image and bounding box data back to the client
     emit('image', {'image': img_base64, 'boxes': bounding_boxes})
+    print("Confidence Thresholds:", confidence_thresholds)
 
 if __name__ == '__main__':
     app.run(ssl_context=('/etc/ssl/certs/selfsigned.crt', '/etc/ssl/private/selfsigned.key'), host='0.0.0.0', port=5000)
