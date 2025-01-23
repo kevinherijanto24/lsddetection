@@ -47,7 +47,7 @@ def index():
 
 @socketio.on('change_model')
 def handle_change_model(data):
-    global model, current_model_path
+    global model, current_model_path, confidence_thresholds
     new_model_path = data.get('model_path')
     try:
         # Load the new model
@@ -59,7 +59,7 @@ def handle_change_model(data):
                 "Normal Skin Cows": 0,
                 "LSD Cows": 0.5
             }
-        elif "yolov11n_modelLumpySkinwith2class_old.pt" in new_model_path.lower():
+        elif "yolov11n_modelLumpySkinwith2class_deeper.pt" in new_model_path.lower():
             confidence_thresholds = {
                 "Cow": 0,
                 "Lump": 0.5
@@ -84,7 +84,7 @@ def handle_stream(data):
     orig_height, orig_width = img.shape[:2]
 
     # Downscale the image for faster processing
-    img_resized = resize_image(img, width=160)  # Resize to 160px width
+    img_resized = resize_image(img, width=640)  # Resize to 160px width
 
     # Perform YOLO detection
     results = model(img_resized)
