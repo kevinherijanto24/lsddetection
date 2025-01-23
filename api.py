@@ -47,7 +47,22 @@ def handle_change_model(data):
         # Load the new model
         model = YOLO(new_model_path)
         current_model_path = new_model_path
+
+        if "yolov11n_modelLumpySkinwith2class_old.pt" in new_model_path.lower():
+            confidence_thresholds = {
+                "Normal Skin Cows": 0,
+                "LSD Cows": 0.5
+            }
+        elif "yolov11n_modelLumpySkinwith2class_old.pt" in new_model_path.lower():
+            confidence_thresholds = {
+                "Cow": 0,
+                "Lump": 0.5
+            }
+        else:
+            confidence_thresholds = {}  # Default empty if the model is unknown
+
         emit('model_changed', {'success': True, 'model': new_model_path})
+
     except Exception as e:
         emit('model_changed', {'success': False, 'error': str(e)})
 
@@ -64,7 +79,7 @@ def handle_stream(data):
     # Downscale the image for faster processing
     img_resized = resize_image(img, width=160)  # Resize to 160px width
 
-    # Perform YOLO detection on the resized image
+    # Perform YOLO detection
     results = model(img_resized)
     boxes = results[0].boxes  # Detected boxes
     classes = results[0].names  # Class labels
@@ -77,12 +92,11 @@ def handle_stream(data):
     for box in boxes:
         x1, y1, x2, y2 = box.xyxy[0].tolist()
         label = classes[int(box.cls)]
+        confidence = box.conf[0].item()  # Get confidence score
 
-        # Check for duplicates using rounded coordinates
-        box_key = (round(x1), round(y1), round(x2), round(y2), label)
-        if seen_boxes[box_key] > 0:
-            continue
-        seen_boxes[box_key] += 1
+        # Apply confidence threshold for the specific class
+        if label in confidence_thresholds and confidence < confidence_thresholds[label]:
+            continue  # Skip if confidence is below threshold
 
         # Rescale the bounding box coordinates
         x1 = int(x1 * orig_width / img_resized.shape[1])
@@ -96,7 +110,8 @@ def handle_stream(data):
             'y1': y1,
             'x2': x2,
             'y2': y2,
-            'label': label
+            'label': label,
+            'confidence': confidence
         })
 
     # Convert the image to base64 for real-time display
