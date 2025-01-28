@@ -24,5 +24,5 @@ EXPOSE 80
 # Set the environment variable for Flask to run in production
 ENV FLASK_ENV=production
 
-CMD ["gunicorn", "-w", "1", "-k", "eventlet", "-b", "0.0.0.0:80", "--limit-request-line", "8190", "--limit-request-field-size", "10485760", "api:app"]
-
+# Run the Flask app with optimized Gunicorn configuration (without SSL)
+CMD ["gunicorn", "-w", "1", "-k", "eventlet", "-b", "0.0.0.0:80", "api:app"]
