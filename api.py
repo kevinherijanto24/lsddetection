@@ -29,7 +29,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 
 # Global variable to store the current model
-current_model_path = 'yolov11n_modelLumpySkinwith2class_old.pt'
+current_model_path = 'yolov11n_modelLumpySkinwith2classdeeper.pt'
 model = YOLO(current_model_path)
 confidence_thresholds = {
     "Normal Skin Cows": 0,  
@@ -179,9 +179,21 @@ def download_file(filename):
 def process_video(input_video_path, filename):
     # Open the video for reading
     cap = cv2.VideoCapture(input_video_path)
+    if not cap.isOpened():
+        print(f"Error: Unable to open video file {input_video_path}")
+        return None
+
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for output video
     output_video_path = os.path.join(PROCESSED_FOLDER, filename)
-    out = cv2.VideoWriter(output_video_path, fourcc, 30.0, (640, 480))
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+
+    if width == 0 or height == 0 or fps == 0:
+        print("Error: Invalid video properties (width, height, or fps is zero).")
+        return None
+
+    out = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -208,6 +220,11 @@ def process_video(input_video_path, filename):
     cap.release()
     out.release()
 
+    if not os.path.exists(output_video_path):
+        print(f"Error: Processed video file {output_video_path} was not created.")
+        return None
+
+    print(f"Processed video saved at: {output_video_path}")
     return output_video_path
 
 @app.route('/upload')
