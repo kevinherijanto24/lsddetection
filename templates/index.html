@@ -18,7 +18,7 @@
             <!-- Video Section -->
             <div class="relative w-full max-w-md mb-6">
                 <div class="aspect-w-4 aspect-h-3 bg-gray-300 rounded-lg overflow-hidden shadow-lg">
-                    <video id="video" class="w-full h-full object-cover" autoplay></video>
+                    <video id="video" class="w-full h-full object-cover" autoplay muted playsinline></video>
                     <!-- Overlay Canvas to draw bounding boxes -->
                     <canvas id="overlayCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
                 </div>
@@ -136,7 +136,7 @@
             // Start the drawing loop
             draw();
         });
-        
+
         // Receive processed image from the server and display bounding boxes
         socket.on('image', function (data) {
             // Clear the overlay canvas before drawing new bounding boxes
