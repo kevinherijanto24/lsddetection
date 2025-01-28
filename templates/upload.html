@@ -44,20 +44,11 @@
 
         <!-- Status Message -->
         <div id="status" class="text-center text-gray-700 text-sm mt-6"></div>
-
-        <!-- Download Processed Video -->
-        <div class="text-center mt-4">
-            <a id="downloadLink" href="" style="display: none;"
-                class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg shadow hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-300">
-                Download Processed Video
-            </a>
-        </div>
     </div>
 
     <script>
         const form = document.getElementById('uploadForm');
         const status = document.getElementById('status');
-        const downloadLink = document.getElementById('downloadLink');
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -72,8 +63,12 @@
                 .then(data => {
                     if (data.success) {
                         status.textContent = 'Video processed successfully!';
-                        downloadLink.href = data.download_url;
-                        downloadLink.style.display = 'inline';
+                        const a = document.createElement('a'); // Create a temporary anchor tag
+                        a.href = data.download_url; // Set the download URL received from the server
+                        a.download = ''; // Let the browser infer the filename from the URL
+                        document.body.appendChild(a); // Append the anchor tag to the body
+                        a.click(); // Trigger the download
+                        document.body.removeChild(a); // Remove the anchor tag after the download
                     } else {
                         status.textContent = 'Error processing video: ' + data.error;
                     }
