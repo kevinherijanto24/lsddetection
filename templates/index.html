@@ -63,16 +63,7 @@
         let currentStream = null;
         let facingMode = 'environment';
         let constraints = { video: { width: 640, height: 480, facingMode: facingMode } };
-        // Function to draw the live feed (webcam) on the canvas
-        function drawLiveFeed() {
-            if (videoElement.paused || videoElement.ended) return;
 
-            // Draw the current frame of the video to the overlay canvas
-            context.drawImage(videoElement, 0, 0, overlayCanvas.width, overlayCanvas.height);
-
-            // Continue drawing live feed
-            requestAnimationFrame(drawLiveFeed);
-        }
         // Access webcam stream function
         function startVideoStream(constraints) {
             navigator.mediaDevices.getUserMedia(constraints)
@@ -116,8 +107,8 @@
 
         // Capture frames and send to the server
         videoElement.addEventListener('play', function () {
-            let frameCount = 0;
             const framesToSkip = 150; // Reduced the frames to skip to 150 (even more reduced if needed)
+            let frameCount = 0;
 
             function draw() {
                 if (videoElement.paused || videoElement.ended) return;
@@ -145,42 +136,25 @@
             // Start the drawing loop
             draw();
         });
-
-        // Receive processed image from the server and display it
+        
+        // Receive processed image from the server and display bounding boxes
         socket.on('image', function (data) {
-    const img = new Image();
-    img.onload = function () {
-        // Clear the overlay canvas before drawing the new image
-        context.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-
-        // Draw the received image onto the overlay canvas
-        context.drawImage(img, 0, 0);
-
-        // Draw bounding boxes after the image is loaded and drawn
-        if (data.boxes && data.boxes.length > 0) {
-            data.boxes.forEach(function (box) {
-                context.beginPath();
-                context.rect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1);
-                context.lineWidth = 2;
-                context.strokeStyle = 'red';
-                context.fillStyle = 'red';
-                context.stroke();
-                context.fillText(box.label, box.x1, box.y1 - 10);
-            });
-        }
-
-        // Hide the inference and resume live video feed after 0.1 seconds
-        setTimeout(function () {
-            // Clear the canvas (remove the overlay) after 0.1 seconds
+            // Clear the overlay canvas before drawing new bounding boxes
             context.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-            
-            // Resume the live feed
-            drawLiveFeed(); // Function to draw live feed from the webcam
-        }, 500); 
-    };
 
-    img.src = 'data:image/png;base64,' + data.image;
-});
+            // Draw bounding boxes (without clearing the live video)
+            if (data.boxes && data.boxes.length > 0) {
+                data.boxes.forEach(function (box) {
+                    context.beginPath();
+                    context.rect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1);
+                    context.lineWidth = 2;
+                    context.strokeStyle = 'red';
+                    context.fillStyle = 'red';
+                    context.stroke();
+                    context.fillText(box.label, box.x1, box.y1 - 10);
+                });
+            }
+        });
 
         // Handle model switching
         document.getElementById('model1').addEventListener('click', function () {
