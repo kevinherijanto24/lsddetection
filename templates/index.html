@@ -44,17 +44,12 @@
                     class="px-6 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
                     Close Up Check
                 </button>
-
-
+                <button
+                        class="px-6 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                        onclick="window.location.href='upload.html';">
+                    Upload Video
+                </button>
             </div>
-                        <!-- Upload Video Button -->
-                        <div class="w-full max-w-md">
-                            <input type="file" id="uploadVideo" accept="video/*" class="mb-3">
-                            <button id="processVideo"
-                                class="px-6 py-2 bg-green-600 text-white text-sm font-medium rounded-lg shadow hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-300">
-                                Upload and Detect Video
-                            </button>
-                        </div>
         </div>
     </div>
 
@@ -208,31 +203,6 @@
             }, 30000); // 15 seconds = 15000ms
         }
         showAlert();
-
-                // Handle video upload and processing
-            document.getElementById('processVideo').addEventListener('click', function () {
-            const fileInput = document.getElementById('uploadVideo');
-            if (!fileInput.files.length) {
-                alert('Please select a video file to upload.');
-                return;
-            }
-
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function () {
-                socket.emit('process_video', { video: reader.result });
-            };
-
-            reader.readAsDataURL(file);
-        });
-
-        socket.on('processed_video', function (data) {
-            const a = document.createElement('a');
-            a.href = 'data:video/mp4;base64,' + data.video;
-            a.download = 'processed_video.mp4';
-            a.click();
-        });
     </script>
 </body>
 

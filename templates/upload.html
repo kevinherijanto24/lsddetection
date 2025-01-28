@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Upload for Object Detection</title>
+</head>
+<body>
+  <h1>Upload Video for Object Detection</h1>
+
+  <!-- Video Upload Form -->
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="video" accept="video/*" required />
+    <button type="submit">Upload Video</button>
+  </form>
+
+  <h3 id="status"></h3>
+  <a id="downloadLink" href="" style="display:none;" download>Download Processed Video</a>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const status = document.getElementById('status');
+    const downloadLink = document.getElementById('downloadLink');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      status.textContent = 'Processing your video...';
+
+      fetch('/upload_video', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          status.textContent = 'Video processed successfully!';
+          downloadLink.href = data.download_url;
+          downloadLink.style.display = 'inline';
+        } else {
+          status.textContent = 'Error processing video: ' + data.error;
+        }
+      })
+      .catch(error => {
+        status.textContent = 'An error occurred: ' + error;
+      });
+    });
+  </script>
+</body>
+</html>

@@ -18,6 +18,12 @@ CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*", maxHttpBufferSize=1e6)  # 1MB buffer size
  # Allow all origins
 
+# Set the folder for video uploads
+UPLOAD_FOLDER = './uploads'
+PROCESSED_FOLDER = './processed_videos'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(PROCESSED_FOLDER, exist_ok=True)
+
 # Global variable to store the current model
 current_model_path = 'yolov11n_modelLumpySkinwith2class_old.pt'
 model = YOLO(current_model_path)
@@ -129,5 +135,75 @@ def handle_stream(data):
     emit('image', {'image': img_base64, 'boxes': bounding_boxes})
     print("Confidence Thresholds:", confidence_thresholds)
 
+
+# Set allowed file extensions
+ALLOWED_EXTENSIONS = {'mp4', 'mov', 'avi'}
+
+# Check if file is allowed
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Route to handle video upload
+@app.route('/upload_video', methods=['POST'])
+def upload_video():
+    if 'video' not in request.files:
+        return jsonify({'success': False, 'error': 'No video part in the request'})
+
+    file = request.files['video']
+    if file.filename == '':
+        return jsonify({'success': False, 'error': 'No selected file'})
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        video_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(video_path)
+
+        # Process the video and perform object detection
+        processed_video_path = process_video(video_path, filename)
+        
+        # Return a download link for the processed video
+        return jsonify({'success': True, 'download_url': f'/download/{filename}'})
+
+    return jsonify({'success': False, 'error': 'Invalid file format'})
+
+# Route to download the processed video
+@app.route('/download/<filename>')
+def download_file(filename):
+    return send_from_directory(PROCESSED_FOLDER, filename)
+
+# Function to process the video and perform object detection
+def process_video(input_video_path, filename):
+    # Open the video for reading
+    cap = cv2.VideoCapture(input_video_path)
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for output video
+    output_video_path = os.path.join(PROCESSED_FOLDER, filename)
+    out = cv2.VideoWriter(output_video_path, fourcc, 30.0, (640, 480))
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        # Perform object detection on the frame
+        results = model(frame)
+        boxes = results[0].boxes  # Detected boxes
+        classes = results[0].names  # Class labels
+
+        # Draw bounding boxes on the frame
+        for box in boxes:
+            x1, y1, x2, y2 = box.xyxy[0].tolist()
+            label = classes[int(box.cls)]
+            confidence = box.conf[0].item()  # Get confidence score
+            cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+            cv2.putText(frame, f'{label}: {confidence:.2f}', (int(x1), int(y1) - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
+        # Write the frame with bounding boxes to the output video
+        out.write(frame)
+
+    cap.release()
+    out.release()
+
+    return output_video_path
 if __name__ == '__main__':
     app.run(ssl_context=('/etc/ssl/certs/selfsigned.crt', '/etc/ssl/private/selfsigned.key'), host='0.0.0.0', port=5000)
