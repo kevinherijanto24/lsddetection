@@ -206,4 +206,4 @@ def process_video(input_video_path, filename):
 
     return output_video_path
 if __name__ == '__main__':
-    app.run(ssl_context=('/etc/ssl/certs/selfsigned.crt', '/etc/ssl/private/selfsigned.key'), host='0.0.0.0', port=80)
+    app.run(ssl_context=('/etc/ssl/certs/selfsigned.crt', '/etc/ssl/private/selfsigned.key'), host='0.0.0.0', port=5000)
