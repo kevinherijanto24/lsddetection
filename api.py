@@ -15,7 +15,8 @@ app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
 # Enable CORS for all origins
 CORS(app)
 
-socketio = SocketIO(app, cors_allowed_origins="*")  # Allow all origins
+socketio = SocketIO(app, cors_allowed_origins="*", maxHttpBufferSize=1e6)  # 1MB buffer size
+ # Allow all origins
 
 # Global variable to store the current model
 current_model_path = 'yolov11n_modelLumpySkinwith2class_old.pt'
