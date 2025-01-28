@@ -231,4 +231,4 @@ def process_video(input_video_path, filename):
 def upload():
     return render_template('upload.html')
 if __name__ == '__main__':
-    app.run(ssl_context=('/etc/ssl/certs/selfsigned.crt', '/etc/ssl/private/selfsigned.key'), host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000, ssl_context=('/etc/ssl/certs/selfsigned.crt', '/etc/ssl/private/selfsigned.key'))
