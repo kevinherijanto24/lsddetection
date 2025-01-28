@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,16 +16,11 @@
         </div>
         <div class="flex flex-col items-center">
             <!-- Video Section -->
-            <div class="w-full max-w-md mb-6">
+            <div class="relative w-full max-w-md mb-6">
                 <div class="aspect-w-4 aspect-h-3 bg-gray-300 rounded-lg overflow-hidden shadow-lg">
                     <video id="video" class="w-full h-full object-cover" autoplay></video>
-                </div>
-            </div>
-
-            <!-- Canvas Section -->
-            <div class="w-full max-w-md mb-6">
-                <div class="aspect-w-4 aspect-h-3 bg-gray-300 rounded-lg overflow-hidden shadow-lg">
-                    <canvas id="canvas" class="w-full h-full object-cover"></canvas>
+                    <!-- Overlay Canvas to draw bounding boxes -->
+                    <canvas id="overlayCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
                 </div>
             </div>
 
@@ -58,16 +52,27 @@
     </footer>
 
     <script>
-        const socket = io.connect('https://lsddetectionukdc.duckdns.org/');
+        const socket = io.connect('https://lsddetectionukdc.duckdns.org/', {
+            transports: ['websocket']
+        });
 
         // Access webcam stream
         const videoElement = document.getElementById('video');
-        const canvasElement = document.getElementById('canvas');
-        const context = canvasElement.getContext('2d');
+        const overlayCanvas = document.getElementById('overlayCanvas');
+        const context = overlayCanvas.getContext('2d');
         let currentStream = null;
         let facingMode = 'environment';
         let constraints = { video: { width: 640, height: 480, facingMode: facingMode } };
+        // Function to draw the live feed (webcam) on the canvas
+        function drawLiveFeed() {
+            if (videoElement.paused || videoElement.ended) return;
 
+            // Draw the current frame of the video to the overlay canvas
+            context.drawImage(videoElement, 0, 0, overlayCanvas.width, overlayCanvas.height);
+
+            // Continue drawing live feed
+            requestAnimationFrame(drawLiveFeed);
+        }
         // Access webcam stream function
         function startVideoStream(constraints) {
             navigator.mediaDevices.getUserMedia(constraints)
@@ -80,8 +85,8 @@
 
                     // Adjust canvas size after video stream starts
                     videoElement.onloadedmetadata = function () {
-                        canvasElement.width = videoElement.videoWidth;
-                        canvasElement.height = videoElement.videoHeight;
+                        overlayCanvas.width = videoElement.videoWidth;
+                        overlayCanvas.height = videoElement.videoHeight;
                     };
                 })
                 .catch(function (err) {
@@ -91,27 +96,28 @@
 
         // Initialize with the front camera
         startVideoStream(constraints);
+
         // Toggle between front and back camera
         document.getElementById('cameraSwitch').addEventListener('click', function () {
-            // Ubah facingMode antara kamera depan dan belakang
-            facingMode = facingMode === 'user' ? 'environment' : 'user'; // Switch between 'user' and 'environment'
+            // Switch between 'user' (front) and 'environment' (back) camera
+            facingMode = facingMode === 'user' ? 'environment' : 'user';
 
-            // Update constraints dengan facingMode baru
+            // Update constraints with new facingMode
             constraints = { video: { width: 640, height: 480, facingMode: facingMode } };
 
-            // Hentikan stream lama sebelum memulai yang baru
+            // Stop the previous stream before starting the new one
             if (currentStream) {
                 currentStream.getTracks().forEach(track => track.stop());
             }
 
-            // Mulai video stream dengan constraints yang baru
+            // Start video stream with new constraints
             startVideoStream(constraints);
         });
 
         // Capture frames and send to the server
         videoElement.addEventListener('play', function () {
             let frameCount = 0;
-            const framesToSkip = 100; // Send one frame every 100 frames (reduce this number further if needed)
+            const framesToSkip = 150; // Reduced the frames to skip to 150 (even more reduced if needed)
 
             function draw() {
                 if (videoElement.paused || videoElement.ended) return;
@@ -142,39 +148,49 @@
 
         // Receive processed image from the server and display it
         socket.on('image', function (data) {
-            const img = new Image();
-            img.onload = function () {
-                // Clear the canvas before drawing the new image
-                context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    const img = new Image();
+    img.onload = function () {
+        // Clear the overlay canvas before drawing the new image
+        context.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
-                // Draw the received image onto the canvas
-                context.drawImage(img, 0, 0);
+        // Draw the received image onto the overlay canvas
+        context.drawImage(img, 0, 0);
 
-                // Draw bounding boxes after the image is loaded and drawn
-                if (data.boxes && data.boxes.length > 0) {
-                    data.boxes.forEach(function (box) {
-                        context.beginPath();
-                        context.rect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1);
-                        context.lineWidth = 2;
-                        context.strokeStyle = 'red';
-                        context.fillStyle = 'red';
-                        context.stroke();
-                        context.fillText(box.label, box.x1, box.y1 - 10);
-                    });
-                }
-            };
-            img.src = 'data:image/png;base64,' + data.image;
-        });
+        // Draw bounding boxes after the image is loaded and drawn
+        if (data.boxes && data.boxes.length > 0) {
+            data.boxes.forEach(function (box) {
+                context.beginPath();
+                context.rect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1);
+                context.lineWidth = 2;
+                context.strokeStyle = 'red';
+                context.fillStyle = 'red';
+                context.stroke();
+                context.fillText(box.label, box.x1, box.y1 - 10);
+            });
+        }
+
+        // Hide the inference and resume live video feed after 0.1 seconds
+        setTimeout(function () {
+            // Clear the canvas (remove the overlay) after 0.1 seconds
+            context.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+            
+            // Resume the live feed
+            drawLiveFeed(); // Function to draw live feed from the webcam
+        }, 500); 
+    };
+
+    img.src = 'data:image/png;base64,' + data.image;
+});
 
         // Handle model switching
         document.getElementById('model1').addEventListener('click', function () {
             socket.emit('change_model', { model_path: 'yolov11n_modelLumpySkinwith2class_old.pt' });
-            showAlert('Switched to Model 1: Far Away Check', 1000000);
+            showAlert('Switched to Model 1: Far Away Check');
         });
 
         document.getElementById('model2').addEventListener('click', function () {
             socket.emit('change_model', { model_path: 'yolov11n_modelLumpySkinwith2classdeeper.pt' });
-            showAlert('Switched to Model 2: Close Up Check', 1000000);
+            showAlert('Switched to Model 2: Close Up Check');
         });
 
         socket.on('model_changed', function (data) {
@@ -185,25 +201,16 @@
             }
         });
 
-        function showAlert() {
+        function showAlert(message) {
             const alertBox = document.getElementById('alert');
-
-            // Show alert
+            alertBox.textContent = message;
             alertBox.style.display = 'block';
 
             // Hide alert after 15 seconds
             setTimeout(() => {
                 alertBox.style.display = 'none';
-
-                // Wait for 1 minute before re-initializing
-                console.log("Waiting for 1 minute...");
-                setTimeout(() => {
-                    console.log("Initialization complete.");
-                }, 60000); // 1 minute = 60000ms
-            }, 30000); // 15 seconds = 15000ms
+            }, 15000); // 15 seconds = 15000ms
         }
-        showAlert();
     </script>
 </body>
-
 </html>
