@@ -11,7 +11,7 @@ import numpy as np
 from collections import Counter  # To handle duplicate boxes
 
 app = Flask(__name__)
-
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
 # Enable CORS for all origins
 CORS(app)
 
