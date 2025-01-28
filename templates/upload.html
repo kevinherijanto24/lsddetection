@@ -1,55 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Video Upload for Object Detection</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Upload for LSD COW DETECTION</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <h1>Upload Video for COW LSD DETECTION</h1>
-  <button
-  class="px-6 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-  onclick="window.location.href='';">
-Back to Main
-</button>
-  <!-- Video Upload Form -->
-  <form id="uploadForm" enctype="multipart/form-data">
-    <input type="file" name="video" accept="video/*" required />
-    <button type="submit">Upload Video</button>
-  </form>
-  
 
-  <h3 id="status"></h3>
-  <a id="downloadLink" href="" style="display:none;" download>Download Processed Video</a>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Page Title -->
+        <h1 class="text-3xl font-semibold text-center text-gray-800 mb-6">
+            Upload Video for LSD COW DETECTION
+        </h1>
 
-  <script>
-    const form = document.getElementById('uploadForm');
-    const status = document.getElementById('status');
-    const downloadLink = document.getElementById('downloadLink');
+        <!-- Back to Main Button -->
+        <div class="text-center mb-6">
+            <button
+                class="px-6 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg shadow hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                onclick="window.location.href='/';">
+                Back to Main
+            </button>
+        </div>
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
-      status.textContent = 'Processing your video...';
+        <!-- Video Upload Form -->
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
+            <form id="uploadForm" enctype="multipart/form-data" class="space-y-4">
+                <!-- File Input -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Choose a video file:</label>
+                    <input type="file" name="video" accept="video/*" required
+                        class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-500 focus:outline-none" />
+                </div>
 
-      fetch('/upload_video', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          status.textContent = 'Video processed successfully!';
-          downloadLink.href = data.download_url;
-          downloadLink.style.display = 'inline';
-        } else {
-          status.textContent = 'Error processing video: ' + data.error;
-        }
-      })
-      .catch(error => {
-        status.textContent = 'An error occurred: ' + error;
-      });
-    });
-  </script>
+                <!-- Submit Button -->
+                <button type="submit"
+                    class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    Upload Video
+                </button>
+            </form>
+        </div>
+
+        <!-- Status Message -->
+        <div id="status" class="text-center text-gray-700 text-sm mt-6"></div>
+
+        <!-- Download Processed Video -->
+        <div class="text-center mt-4">
+            <a id="downloadLink" href="" style="display: none;"
+                class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg shadow hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-300">
+                Download Processed Video
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const status = document.getElementById('status');
+        const downloadLink = document.getElementById('downloadLink');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            status.textContent = 'Processing your video...';
+
+            fetch('/upload_video', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        status.textContent = 'Video processed successfully!';
+                        downloadLink.href = data.download_url;
+                        downloadLink.style.display = 'inline';
+                    } else {
+                        status.textContent = 'Error processing video: ' + data.error;
+                    }
+                })
+                .catch(error => {
+                    status.textContent = 'An error occurred: ' + error;
+                });
+        });
+    </script>
 </body>
+
 </html>
