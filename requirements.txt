@@ -9,3 +9,15 @@ waitress
 gunicorn
 gevent>=1.4
 eventlet
+
+flask
+flask-socketio
+flask-cors
+opencv-python
+pillow
+ultralytics
+numpy
+waitress
+gunicorn
+gevent>=1.4
+eventlet

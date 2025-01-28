@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS  # Import CORS
 import cv2
@@ -10,6 +10,8 @@ from PIL import Image
 from waitress import serve
 import numpy as np
 from collections import Counter  # To handle duplicate boxes
+from werkzeug.utils import secure_filename
+import cv2
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
