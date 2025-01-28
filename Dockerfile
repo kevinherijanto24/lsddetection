@@ -25,4 +25,5 @@ EXPOSE 80
 ENV FLASK_ENV=production
 
 # Run the Flask app with optimized Gunicorn configuration (without SSL)
-CMD ["gunicorn", "-w", "1", "-k", "eventlet", "-b", "0.0.0.0:80", "api:app"]
+CMD ["gunicorn", "-w", "1", "-k", "eventlet", "-b", "0.0.0.0:80", "--timeout", "600", "api:app"]
+

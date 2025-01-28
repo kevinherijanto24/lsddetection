@@ -15,6 +15,7 @@ import cv2
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 600
 # Enable CORS for all origins
 CORS(app)
 
